@@ -4,11 +4,11 @@ import axios from 'axios'
 function App() {
 
   const [movieName, setMovieName] = useState("");
-  
+  const apiKey = import.meta.env.VITE_API_KEY;
   const fetchMovieData = async (e) => {
     e.preventDefault(); 
   try {
-    const response = await axios.get(`http://www.omdbapi.com/?apikey=a9499b80&t=${movieName}`);
+    const response = await axios.get(`http://www.omdbapi.com/?apikey=${apiKey}&t=${movieName}`);
     console.log(response.data)
   } catch (error) {
     console.error('Error:', error);
