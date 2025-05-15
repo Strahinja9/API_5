@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import axios from 'axios'
+import 'bootstrap/dist/css/bootstrap.css';
 
 function App() {
   // States
-  const [movieName, setMovieName] = useState("");
+  const [movieTitle, setMovieTitle] = useState("");
   const [movies, setMovies]= useState([]);
   const [errors, setErrors]= useState();
 
@@ -14,14 +15,31 @@ function App() {
   // API
   const fetchMovieData = async (e) => {
     e.preventDefault(); 
+
+     if (movieTitle.trim() === "") {
+    setErrors("Enter the name of the movie");
+    setMovies([]);
+    return;
+  }
+
   try {
-    const response = await axios.get(`${apiAdress}?apikey=${apiKey}&s=${movieName}`);
-    setMovies(response.data.Search)
-    console.log(response.data.Search)
+    const response = await axios.get(`${apiAdress}?apikey=${apiKey}&s=${movieTitle}&type=movie`);
+    console.log(response.data)
+    if(response.data.Response === "False") {
+      setMovies([])
+      setErrors(response.data.Error)
+      
+    } else {
+      setMovies(response.data.Search)
+      setErrors('')
+    }
+    
+    
     
   } catch (error) {
-    setErrors('Error:', error);
-    throw error;
+    setErrors(error.message);
+    setMovies([]);
+    
   }
 };
 
@@ -29,22 +47,35 @@ function App() {
 
   return (
     <>
+ 
       <form onSubmit={fetchMovieData}>
         <label>Naziv filma</label>
-        <input type="text" onInput={ e => setMovieName(e.target.value)} value={movieName} />
-        <button type='submit'>Pretrazi film</button>
+        <input className='mx-2' type="text" onInput={ e => setMovieTitle(e.target.value)} value={movieTitle} />
+        <button className='btn btn-primary' type='submit'>Pretrazi film</button>
       </form>
-      
-      {
+      <section className='d-flex flex-row justify-content-between gap-5 flex-wrap'>
+      { 
         movies.map((movie) => (
-            <ul key={movie.imdbID}>
-            <li>{movie.Title}</li>
-            <li>{movie.Actors}</li>
-            </ul>
+            
+            <div style={{width:"250px"}} className='d-flex flex-column justify-content-between' key={movie.imdbID}>
+            <h4 style={{textAlign:"center"}}>{movie.Title} - {movie.Year}</h4>
+            <img style={{maxWidth:"100%"}} src={movie.Poster}></img>
+            
+            </div>
+            
         ))
       }
 
-      <p>{errors}</p>
+           {errors && (
+              <div className="alert alert-danger mt-3">
+                {errors}
+              </div>
+            )}
+      </section>
+
+ 
+
+      
 
     </>
   )
